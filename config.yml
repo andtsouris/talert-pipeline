@@ -1,0 +1,39 @@
+# Directories
+source_directory : /raw/project-00/Bulk_RNAseq_pipeline/data/human/
+analysis_directory : ../analysis/
+pattern : "*.fastq.gz"
+resources : resource.yml
+
+# Software paths
+fastqc_path : #/software/global/fastqc/v0.12.1/fastqc
+trimmomatic_path : #"java -jar /software/global/trimmomatic/v0.39/trimmomatic-0.39.jar"
+salmon_path : #/software/global/salmon/v1.10.0/bin/salmon
+
+
+###############################################
+##              TOOL PARAMETERS              ##
+###############################################
+# Trimmomatic parameters
+mode : PE                                       # "PE"=paired end; "SE"=single end
+phred_score : phred33                           # "phred33" or "pdred64" depending on the data
+adapters : /software/global/trimmomatic/v0.39/adapters/TruSeq3-PE.fa   # Set which adapter you want to use; if you have your own set of adapters feel free to give the path of your adapter *.fa file here
+leading_score : 3                               # Remove leading low quality or N bases (default: 3)
+trailing_score : 3                              # Remove trailing low quality or N bases (default: 3)
+sliding_window_values : "4:15"                  # Scan the read with a 4-base wide sliding window, cutting when the average quality per base drops below 15
+minimum_length : 25                             # Drop reads which are less than 25 bases long after the previous steps
+
+# Salmon peremeters
+option_salmon : "--posBias --seqBias --gcBias"
+
+
+
+###############################################
+##            REFERENCE SEQUENCES            ##
+###############################################
+# Human genome reference
+ref_organism : "Human"  
+# Genome reference
+ref_path : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/
+ref_genome : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+ref_transcriptome : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/Homo_sapiens.GRCh38.cdna.all.fa.gz
+ref_gtf : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/Homo_sapiens.GRCh38.110.gtf.gz

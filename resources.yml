@@ -1,0 +1,14 @@
+__default__ :
+  cpu : 2
+  mem : "8G" #"16G"
+  time : "24:00:00"
+
+trimmomatic :
+  cpu : 4
+  mem : "8G" #"16G"
+  time : "24:00:00" 
+
+salmon_quantification :
+  cpu : 6 #8
+  mem : "8G" #"16G"
+  time : "72:00:00"
