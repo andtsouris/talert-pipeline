@@ -1,1 +1,3 @@
-# talert-pipeline
+# TALERT-RNAseq-pipeline
+
+
