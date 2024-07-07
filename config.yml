@@ -1,6 +1,6 @@
 # Directories
 source_directory : /raw/project-00/Bulk_RNAseq_pipeline/data/human/
-analysis_directory : ../analysis/
+data_path: /home/atsou/Documents/Postdoc/T-ALERT/Data/
 pattern : "*.fastq.gz"
 resources : resource.yml
 

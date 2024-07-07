@@ -1,0 +1,116 @@
+import yaml
+import glob
+import os
+import pandas as pd
+
+#data_path="/home/atsou/Documents/Postdoc/talert/Data" #Get this from the config file
+
+# Making output directories
+def create_dirs(my_data_path):
+    result_dirs=['fastqc_raw', 'trimmed_reads', 'fastqc_trimmed']
+    os.makedirs(f'{my_data_path}/Temp', exist_ok=True)
+    os.makedirs(f'{my_data_path}/logs', exist_ok=True)
+    for dir in result_dirs:
+        os.makedirs(f'{my_data_path}/Results/{dir}', exist_ok=True)
+
+create_dirs(config["data_path"])
+
+# Get sample names
+samples = [os.path.basename(x).replace('_R1.fastq.gz', '') for x in glob.glob(f'{config["data_path"]}fastq/*_R1.fastq.gz')]
+
+# Get global variables
+data_dir = config["data_path"]
+
+# Global rule
+rule all:
+    input:
+        expand(data_dir + "Results/fastqc_raw/{sample}_R{read}_fastqc.{ext}", 
+        ext=["html", "zip"], sample=samples, read=[1, 2]) ,
+        expand(data_dir + "Results/trimmed_reads/{sample}_R{read}_trimmed.fastq.gz",
+        sample=samples, read=[1, 2]),
+        expand(data_dir + "Results/fastqc_trimmed/{sample}_R{read}_trimmed_fastqc.{ext}",
+        ext=["html", "zip"], sample=samples, read=[1, 2])
+####################
+
+
+# FastQC on raw file
+qc1_in_dir = f"{data_dir}fastq/"
+qc1_out_dir = f"{data_dir}Results/fastqc_raw/"
+
+rule fastqc_raw:
+    input:
+        raw_1 = qc1_in_dir + "{sample}_R1.fastq.gz",
+        raw_2 = qc1_in_dir + "{sample}_R2.fastq.gz"
+    output:
+        html1 = qc1_out_dir + "{sample}_R1_fastqc.html",
+        zip1 = qc1_out_dir + "{sample}_R1_fastqc.zip",
+        html2 = qc1_out_dir + "{sample}_R2_fastqc.html",
+        zip2 = qc1_out_dir + "{sample}_R2_fastqc.zip"
+    resources:
+        mem_mb = 8000
+    log:
+        data_dir + "logs/fastqc_raw_{sample}.log"
+    shell:
+        "fastqc {input.raw_1} {input.raw_2} -o {qc1_out_dir} > {log} 2>&1"
+####################        
+
+# Trimmomatic
+trim_in_dir = f"{data_dir}fastq/"
+trim_out_dir = f"{data_dir}Results/trimmed_reads/"
+
+rule trimming:
+    input:
+        raw_1 = trim_in_dir + "{sample}_R1.fastq.gz",
+        raw_2 = trim_in_dir + "{sample}_R2.fastq.gz"
+    output:
+        trimmed_1 = trim_out_dir + "{sample}_R1_trimmed.fastq.gz",
+        trimmed_2 = trim_out_dir + "{sample}_R2_trimmed.fastq.gz"
+    params:
+        phred_score = config["phred_score"],
+        adapters = config["adapters"],
+        leading = config["leading_score"],
+        trailing = config["trailing_score"],
+        sliding_window = config["sliding_window_values"],
+        minlength = config["minimum_length"]
+    resources:
+        mem_mb = "8G" #16G
+    log:
+        data_dir + "logs/trimmomatic_{sample}.log"
+    benchmark:
+        data_dir + "logs/trimmomatic_{sample}.benchmark"
+    shell:
+        """trimmomatic PE -threads 2 \
+        -{params.phred_score} \
+        {input.raw_1} {input.raw_2} \
+        {output.trimmed_1} /dev/null {output.trimmed_2} /dev/null \
+        ILLUMINACLIP:{params.adapters}:2:30:10 \
+        LEADING:{params.leading} TRAILING:{params.trailing} \
+        SLIDINGWINDOW:{params.sliding_window} \
+        MINLEN:{params.minlength} > {log} 2>&1
+        """
+####################               
+
+# FastQC on trimmed reads
+qc2_in_dir = f"{data_dir}Results/trimmed_reads/"
+qc2_out_dir = f"{data_dir}Results/fastqc_trimmed/"
+
+rule fastqc_trimmed:
+    input:
+        trimmed_1 = qc2_in_dir + "{sample}_R1_trimmed.fastq.gz",
+        trimmed_2 = qc2_in_dir + "{sample}_R2_trimmed.fastq.gz"
+    output:
+        html1 = qc2_out_dir + "{sample}_R1_trimmed_fastqc.html",
+        zip1 = qc2_out_dir + "{sample}_R1_trimmed_fastqc.zip",
+        html2 = qc2_out_dir + "{sample}_R2_trimmed_fastqc.html",
+        zip2 = qc2_out_dir + "{sample}_R2_trimmed_fastqc.zip"
+    resources:
+        mem_mb = "8G"
+    log:
+        data_dir + "logs/fastqc_trimmed_{sample}.log"
+    shell:
+        "fastqc {input.trimmed_1} {input.trimmed_2} -o {qc2_out_dir} > {log} 2>&1"
+
+
+# Salmon index
+# Salmon quantification
+# Merge salmon
