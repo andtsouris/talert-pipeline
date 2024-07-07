@@ -24,6 +24,7 @@ minimum_length : 25                             # Drop reads which are less than
 
 # Salmon peremeters
 option_salmon : "--posBias --seqBias --gcBias"
+salmon_index : /raw/project-00/Bulk_RNAseq_pipeline/genome/indexed_genome/human/salmon/GRCh38.p14_GCA_000001405.29/                                                                               
 
 
 
@@ -33,7 +34,7 @@ option_salmon : "--posBias --seqBias --gcBias"
 # Human genome reference
 ref_organism : "Human"  
 # Genome reference
-ref_path : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/
-ref_genome : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
-ref_transcriptome : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/Homo_sapiens.GRCh38.cdna.all.fa.gz
-ref_gtf : /raw/project-00/Bulk_RNAseq_pipeline/genome/ref_genome/human/GRCh38.p14_GCA_000001405.29/Homo_sapiens.GRCh38.110.gtf.gz
+ref_path : ../../References/
+ref_genome : Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+ref_transcriptome : Homo_sapiens.GRCh38.cdna.all.fa.gz
+ref_gtf : Homo_sapiens.GRCh38.112.gtf.gz
