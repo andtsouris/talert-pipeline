@@ -1,13 +1,13 @@
 # Directories
 source_directory : /raw/project-00/Bulk_RNAseq_pipeline/data/human/
-data_path: /home/atsou/Documents/Postdoc/T-ALERT/Data/
+data_path: /home/atsouris/T-ALERT/Data/
 pattern : "*.fastq.gz"
 resources : resource.yml
 
 # Software paths
-fastqc : fastqc
-trimmomatic : trimmomatic
-salmon : #/software/global/salmon/v1.10.0/bin/salmon
+fastqc : /software/global/fastqc/v0.12.1/fastqc
+trimmomatic : "java -jar /software/global/trimmomatic/v0.39/trimmomatic-0.39.jar"
+salmon : /software/global/salmon/v1.10.0/bin/salmon
 
 
 ###############################################
@@ -24,7 +24,7 @@ minimum_length : 25                             # Drop reads which are less than
 
 # Salmon peremeters
 option_salmon : "--posBias --seqBias --gcBias"
-salmon_index : /raw/project-00/Bulk_RNAseq_pipeline/genome/indexed_genome/human/salmon/GRCh38.p14_GCA_000001405.29/                                                                               
+salmon_index : /home/atsouris/T-ALERT/Data/References/GRCh38.p14_GCA_000001405.29/
 
 
 
@@ -34,7 +34,7 @@ salmon_index : /raw/project-00/Bulk_RNAseq_pipeline/genome/indexed_genome/human/
 # Human genome reference
 ref_organism : "Human"  
 # Genome reference
-ref_path : ../../References/
+ref_path : /home/atsouris/T-ALERT/Data/References/
 ref_genome : Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 ref_transcriptome : Homo_sapiens.GRCh38.cdna.all.fa.gz
-ref_gtf : Homo_sapiens.GRCh38.112.gtf.gz
+ref_gtf : Homo_sapiens.GRCh38.110.gtf.gz
