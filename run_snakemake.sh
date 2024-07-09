@@ -3,8 +3,8 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --nodes=2
 #SBATCH --cores=16
-#SBATCH --output=log_run.%j.log
-#SBATCH --error=log_run.%j.log
+#SBATCH --output=logs/log_run.%j.log
+#SBATCH --error=logs/log_run.%j.log
 #SBATCH --open-mode=append
 
 
