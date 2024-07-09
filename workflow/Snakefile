@@ -35,7 +35,8 @@ rule all:
         # data_dir + "Results/salmon_index/gentrome.fa.gz"#,
         #data_dir + "Results/salmon_index/seq.bin",
         #data_dir + "Results/salmon_index/pre_indexing.log"
-        expand(data_dir + "Results/salmon_quant/{sample}_salmon_quant.sf", sample=samples)
+        expand(data_dir + "Results/salmon_quant/{sample}_salmon_quant.sf", sample=samples),
+        f"{data_dir}Results/" "salmon_quant_all.csv"
 ####################
 
 
@@ -177,4 +178,27 @@ rule salmon_quantication:
 
 
 # Merge salmon
+merge_out = f"{data_dir}Results/"
 
+rule merge_salmon_sf:
+                input: 
+                    expand(quant_out + "{sample}_salmon_quant.sf", sample=samples)
+                output: 
+                    merge_out + "salmon_quant_all.csv"
+                run:  
+                    # Get the matching files paths
+                    sf_files = input
+                    
+                    # Merge the sf files
+                    merged_df = pd.DataFrame()
+                    for i in sf_files:
+                        count = pd.read_csv(i, delimiter="\t", index_col=0)
+                        column_name = os.path.basename(i).split("_")[0]
+                        count = count.rename(columns={"TPM": column_name})
+                        merged_df[os.path.basename(i).split("_")[0]] = count[os.path.basename(i).split("_")[0]]
+
+                    # Fix the index id name
+                    merged_df.index.name = "ENSID"
+
+                    # Save the file to csv
+                    merged_df.to_csv(output[0])
