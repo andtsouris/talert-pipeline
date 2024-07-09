@@ -31,6 +31,7 @@ rule all:
         sample=samples, read=[1, 2]),
         expand(data_dir + "Results/fastqc_trimmed/{sample}_R{read}_trimmed_fastqc.{ext}",
         ext=["html", "zip"], sample=samples, read=[1, 2]),
+        # Skipping the salmon indexing step
         # data_dir + "Results/salmon_index/decoys.txt",
         # data_dir + "Results/salmon_index/gentrome.fa.gz"#,
         #data_dir + "Results/salmon_index/seq.bin",
@@ -118,31 +119,39 @@ rule fastqc_trimmed:
         fastqc + " {input.trimmed_1} {input.trimmed_2} -o {qc2_out_dir} > {log} 2>&1"
 #
 
-# # Salmon index
-# ref_dir = f"{config['ref_path']}"
-# index_out_dir = f"{data_dir}Results/salmon_index/"
-# salmon_index = config["salmon_index"]
-# rule salmon_index:
-#     input:
-#         ref_genome = ref_dir + config["ref_genome"],
-#         ref_transcriptome = ref_dir + config["ref_transcriptome"]
-#     output:
-#         decoy = index_out_dir + "decoys.txt",
-#         gentrome = index_out_dir + "gentrome.fa.gz"   #,
-#         #seqbin = protected(index_out_dir + "seq.bin"),
-#         #indexlog = protected(index_out_dir + "pre_indexing.log")
-#     shell:
-#         """
-#         # Extract the names of the genome targets
-#         grep "^>" <(gunzip -c {input.ref_genome}) | cut -d " " -f 1 > {output.decoy}
-#         sed -i.bak -e 's/>//g' {output.decoy}
+# # Salmon index - 
+# !!!! THERE IS AN ISSU WITH THIS STEP, 
+# !!!! IT DOESN'T CREATE THE seq_bin AND indexlog outputs
+# !!!! The script works without it 
+# as I'm using the seq_bin and indexlog of Tomnoy and the same refs
+# Should be fixed if we want to use other reference sequences
+if False:   
+    '''
+    # ref_dir = f"{config['ref_path']}"
+    # index_out_dir = f"{data_dir}Results/salmon_index/"
+    # salmon_index = config["salmon_index"]
+    # rule salmon_index:
+    #     input:
+    #         ref_genome = ref_dir + config["ref_genome"],
+    #         ref_transcriptome = ref_dir + config["ref_transcriptome"]
+    #     output:
+    #         decoy = index_out_dir + "decoys.txt",
+    #         gentrome = index_out_dir + "gentrome.fa.gz"   #,
+    #         #seqbin = protected(index_out_dir + "seq.bin"),
+    #         #indexlog = protected(index_out_dir + "pre_indexing.log")
+    #     shell:
+    #         """
+    #         # Extract the names of the genome targets
+    #         grep "^>" <(gunzip -c {input.ref_genome}) | cut -d " " -f 1 > {output.decoy}
+    #         sed -i.bak -e 's/>//g' {output.decoy}
 
-#         # Concatenate trascriptome and genome
-#         cat {input.ref_transcriptome} {input.ref_genome} > {output.gentrome}
+    #         # Concatenate trascriptome and genome
+    #         cat {input.ref_transcriptome} {input.ref_genome} > {output.gentrome}
 
-#         # Perform indexing
-#         {salmon} index -p 12 -t {output.gentrome} -d {output.decoy} -i {salmon_index}
-#         """
+    #         # Perform indexing
+    #         {salmon} index -p 12 -t {output.gentrome} -d {output.decoy} -i {salmon_index}
+    #         """
+    # '''
 #
 
 # Salmon quantification
@@ -175,7 +184,7 @@ rule salmon_quantication:
         # Rename quant.sf
         mv {quant_out}{wildcards.sample}/quant.sf {output}
         """
-
+#
 
 # Merge salmon
 merge_out = f"{data_dir}Results/"
@@ -202,3 +211,4 @@ rule merge_salmon_sf:
 
                     # Save the file to csv
                     merged_df.to_csv(output[0])
+#
